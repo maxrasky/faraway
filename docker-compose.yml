@@ -1,0 +1,26 @@
+networks:
+  pow:
+    external: false
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: .build/Dockerfile.server
+    container_name: pow-server
+    restart: unless-stopped
+    networks:
+      - pow
+
+  client:
+    build:
+      context: .
+      dockerfile: .build/Dockerfile.client
+    container_name: pow-client
+    environment:
+      - SERVER_ADDR=server:9090
+      - TIMEOUT=12s
+    networks:
+      - pow
+    depends_on:
+      - server
