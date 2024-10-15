@@ -4,12 +4,12 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 )
 
 const (
-	maxIterations    int    = 1 << 20        // Max iterations to find a solution
 	bytesToRead      int    = 8              // Bytes to read for random token
 	bitsPerHexChar   int    = 4              // Each hex character takes 4 bits
 	zero             rune   = 48             // ASCII code for number zero
@@ -53,7 +53,7 @@ func (h *Hashcash) Compute() (string, error) {
 		h.counter++
 		header = h.createHeader()
 		hash = sha1Hash(header)
-		if h.counter >= maxIterations {
+		if h.counter >= math.MaxInt {
 			return "", ErrSolutionFail
 		}
 	}
