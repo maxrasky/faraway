@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -22,21 +23,21 @@ type Verifier interface {
 
 type Server struct {
 	listener net.Listener
-	addr     string
+	cfg      *Config
 	verifier Verifier
 	quotes   Quoter
 }
 
-func NewServer(addr string, verifier Verifier, quoter Quoter) *Server {
+func NewServer(cfg *Config, verifier Verifier, quoter Quoter) *Server {
 	return &Server{
-		addr:     addr,
+		cfg:      cfg,
 		verifier: verifier,
 		quotes:   quoter,
 	}
 }
 
 func (s *Server) Run(ctx context.Context) (err error) {
-	s.listener, err = net.Listen("tcp", s.addr)
+	s.listener, err = net.Listen("tcp", s.cfg.Port)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
@@ -67,6 +68,7 @@ func (s *Server) Run(ctx context.Context) (err error) {
 
 func (s *Server) handle(conn net.Conn) error {
 	defer conn.Close()
+	_ = conn.SetDeadline(time.Now().Add(s.cfg.Deadline))
 
 	if _, err := utils.ReadMessage(conn); err != nil {
 		return fmt.Errorf("read message err: %w", err)

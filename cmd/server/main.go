@@ -15,7 +15,7 @@ import (
 
 func main() {
 	cfg := server.NewConfig()
-	powServer := server.NewServer(cfg.Port, pow.NewService(), quotes.New())
+	powServer := server.NewServer(cfg, pow.NewService(), quotes.New())
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
